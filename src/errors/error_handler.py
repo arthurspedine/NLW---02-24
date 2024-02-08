@@ -1,12 +1,26 @@
 from src.views.http_types.http_response import HttpResponse
+from .error_types.http_unprocessable_entity import HttpUnprocessableEntityError
 
 def handle_erros(error: Exception) -> HttpResponse: 
-    return HttpResponse(
-        status_code=500,
-        body={
-            "errors": [{
-                "title": "Server Error",
-                "detail": str(error) 
-            }]
-        }
-    )     
+    if isinstance(error, HttpUnprocessableEntityError):
+        # send a log
+        # send a notification for an email
+        return HttpResponse(
+            status_code=error.status_code,
+            body={
+                "errors": [{
+                    "title": error.name,
+                    "detail": error.message
+                }]
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=500,
+            body={
+                "errors": [{
+                    "title": "Server Error",
+                    "detail": str(error) 
+                }]
+            }
+        )     
